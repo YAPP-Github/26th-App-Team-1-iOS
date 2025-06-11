@@ -18,7 +18,7 @@ jobs:
       - name: Checkout main code
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: develop
 
       - name: Issue Parser
         uses: stefanbuck/github-issue-praser@v3
@@ -30,6 +30,7 @@ jobs:
           echo '${{ steps.issue-parser.outputs.issueparser_parentKey }}'
           echo '${{ steps.issue-parser.outputs.__ticket_number }}'
           echo '${{ steps.issue-parser.outputs.jsonString }}'
+          
       - name: Convert markdown to Jira Syntax
         uses: peter-evans/jira2md@v1
         id: md2jira
@@ -40,6 +41,7 @@ jobs:
 
             ${{ github.event.issue.body }}
           mode: md2jira
+          
       - name: Create Issue
         id: create
         uses: atlassian/gajira-create@v3
@@ -54,6 +56,7 @@ jobs:
                 "key": "${{ steps.issue-parser.outputs.issueparser_parentKey }}"
               }
             }
+            
       - name: Log created issue
         run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
 
