@@ -1,7 +1,7 @@
 name: Feature Task
 description: 새로운 기능을 개발할 때 사용하는 템플릿입니다.(JIRA와 연동됩니다)
-title: "[feature] "
-labels: ["✨ feature"]
+title: "[feat] "
+labels: ["✨ feat"]
 body:
   - type: input
     id: parentKey
