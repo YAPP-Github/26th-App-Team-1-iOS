@@ -1,0 +1,41 @@
+name: Style Task
+description: UI 스타일 변경 작업을 위한 이슈 템플릿입니다.(JIRA와 연동됩니다)
+title: "/Style] "
+labels: ["🎨 Style"]
+body:
+  - type: input
+    id: parentKey
+    attributes:
+      label: '🎟️ 상위 작업 (Ticket Number)'
+      description: '상위 작업의 Ticket Number를 기입해주세요'
+      placeholder: 'BOOK-00'
+    validations:
+      required: true
+      
+  - type: input
+    id: description
+    attributes:
+      label: "🎨 수정할 코드 설명"
+      description: "수정할 요소에 대해 간략히 설명해주세요"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: "📐 작업 목록"
+      description: "수행할 작업을 체크리스트 형식으로 작성해주세요"
+      value: |
+        - [ ] Task1
+        - [ ] Task2
+    validations:
+      required: true
+
+  - type: input
+    id: links
+    attributes:
+      label: "🔗 참고 링크"
+      description: "관련 문서, 가이드 등이 있다면 첨부해주세요 (선택)"
+      placeholder: "https://..."
+    validations:
+      required: false
