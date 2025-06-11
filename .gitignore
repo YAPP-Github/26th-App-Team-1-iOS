@@ -105,3 +105,5 @@ iOSInjectionProject/
 
 ### APIKey.plist ###
 **/APIKey.plist
+
+node_modules/

@@ -1,0 +1,29 @@
+{
+  "name": "26th-app-team-1-ios",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YAPP-Github/26th-App-Team-1-iOS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YAPP-Github/26th-App-Team-1-iOS/issues"
+  },
+  "homepage": "https://github.com/YAPP-Github/26th-App-Team-1-iOS#readme",
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "jira-prepare-commit-msg": "^1.7.2"
+  },
+  "jira-prepare-commit-msg": {
+    "messagePattern": "[$J] $M",
+    "allowEmptyCommitMessage": false,
+    "ignoredBranchesPattern": "^(master|main|dev|develop|development|release)$"
+  }
+}
