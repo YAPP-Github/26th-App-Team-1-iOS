@@ -8,9 +8,34 @@ jobs:
     name: Create Jira issue
     runs-on: ubuntu-latest
     steps:
-      - name: 조건 분기 체크
-        if: contains(github.event.issue.labels.*.name, '✨ feat')
-        run: echo "Feature 이슈이므로 Jira 생성 시작합니다."
+      - name: Determine Issue Type
+        id: type
+        run: |
+          if echo "${{ toJson(github.event.issue.labels) }}" | grep -q '✨ feat'; then
+            echo "type=feature" >> $GITHUB_OUTPUT
+            echo "template=feature-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🐞 fix'; then
+            echo "type=fix" >> $GITHUB_OUTPUT
+            echo "template=fix-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🔨 refactor'; then
+            echo "type=refactor" >> $GITHUB_OUTPUT
+            echo "template=refactor-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '📃 docs'; then
+            echo "type=docs" >> $GITHUB_OUTPUT
+            echo "template=docs-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '⚙️ chore'; then
+            echo "type=chore" >> $GITHUB_OUTPUT
+            echo "template=setting-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '✅ test'; then
+            echo "type=test" >> $GITHUB_OUTPUT
+            echo "template=test-task.yml" >> $GITHUB_OUTPUT
+          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🎨 style'; then
+            echo "type=style" >> $GITHUB_OUTPUT
+            echo "template=style-task.yml" >> $GITHUB_OUTPUT
+          else
+            echo "type=other" >> $GITHUB_OUTPUT
+            echo "template=default.yml" >> $GITHUB_OUTPUT
+          fi
     
       - name: Jira Login
         uses: atlassian/gajira-login@v3
@@ -24,12 +49,12 @@ jobs:
         with:
           ref: develop
 
-      - name: Issue Parser
-        if: contains(github.event.issue.labels.*.name, '✨ feat')
-        uses: stefanbuck/github-issue-praser@v3
+      # 📝 이슈 파싱 (템플릿 경로 자동 선택)
+      - name: Parse Issue
+        uses: stefanbuck/github-issue-parser@v3
         id: issue-parser
         with:
-          template-path: .github/ISSUE_TEMPLATE/issue-form.yml
+          template-path: .github/ISSUE_TEMPLATE/${{ steps.type.outputs.template }}
           
       - name: Log Issue Parser
         run: |
@@ -56,13 +81,12 @@ jobs:
           mode: md2jira
           
       - name: Create Issue
-        if: contains(github.event.issue.labels.*.name, '✨ feat')
         id: create
         uses: atlassian/gajira-create@v3
         with:
           project: BOOK
           issuetype: Task
-          summary: '[✨ feat] ${{ github.event.issue.title }}'
+          summary: '${{ github.event.issue.title }}'
           description: '${{ steps.md2jira.outputs.output-text }}'
           fields: |
             {
@@ -83,21 +107,23 @@ jobs:
         run: |
           git fetch origin develop
           git checkout develop
-
-      - name: Create branch with Ticket number
+          
+      - name: Generate Branch Name
+        id: branch
         run: |
-          ISSUE_NUMBER="${{ steps.create.outputs.issue }}"
-          ISSUE_TITLE="${{ steps.issue-parser.outputs.issueparser_branch}}"
-          BRANCH_NAME="${ISSUE_NUMBER}-$(echo ${ISSUE_TITLE} | sed 's/ /-/g')"
-          git checkout -b "${BRANCH_NAME}"
-          git push origin "${BRANCH_NAME}"
+          issue_number=${{ github.event.issue.number }}
+          issue_title="${{ github.event.issue.title }}"
+          slug=$(echo "$issue_title" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g' | sed 's/[^a-z0-9\-]//g')
+          ticket_key="${{ steps.create.outputs.issue }}"
+          branch_name="${ticket_key}-${{ steps.type.outputs.type }}/#${issue_number}"
+          echo "branch=${branch_name}" >> $GITHUB_OUTPUT
           
       - name: Update issue title
         uses: actions-cool/issues-helper@v3
         with:
           actions: 'update-issue'
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: '[${{ steps.create.outputs.issue }}] ${{ github.event.issue.title }}'
+          title: '[${{ steps.create.outputs.issue }} ${{ github.event.issue.title }}'
 
       - name: Add comment with Jira issue link
         uses: actions-cool/issues-helper@v3
@@ -106,3 +132,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
           body: 'Jira Issue Created: [${{ steps.create.outputs.issue }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ steps.create.outputs.issue }})'
+
+      - name: Add comment with Branch Name
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'create-comment'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: '🔀 Branch Created: `${{ steps.branch.outputs.branch }}`'
+
