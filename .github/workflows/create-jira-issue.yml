@@ -117,7 +117,14 @@ jobs:
           ticket_key="${{ steps.create.outputs.issue }}"
           branch_name="${ticket_key}-${{ steps.type.outputs.type }}/#${issue_number}"
           echo "branch=${branch_name}" >> $GITHUB_OUTPUT
-          
+
+      - name: Create and push branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${{ steps.branch.outputs.branch }}"
+          git push origin "${{ steps.branch.outputs.branch }}"
+    
       - name: Update issue title
         uses: actions-cool/issues-helper@v3
         with:
