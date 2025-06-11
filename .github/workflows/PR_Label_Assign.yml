@@ -12,4 +12,4 @@ jobs:
       - name: Label PR by title
         uses: jimschubert/labeler-action@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
