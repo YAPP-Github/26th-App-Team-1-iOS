@@ -44,8 +44,8 @@ jobs:
         id: create
         uses: atlassian/gajira-create@v3
         with:
-          project: SKP
-          issuetype: Task
+          project: BOOK
+          issuetype: Subtask
           summary: '${{ github.event.issue.title }}'
           description: '${{ steps.md2jira.outputs.output-text }}'
           fields: |
