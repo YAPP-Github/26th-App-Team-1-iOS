@@ -57,10 +57,15 @@ jobs:
       - name: Log created issue
         run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
 
-      - name: Checkout develop code
+      - name: Checkout both branches
         uses: actions/checkout@v4
         with:
-          ref: develop
+          fetch-depth: 0
+          
+      - name: Switch to develop
+        run: |
+          git fetch origin develop
+          git checkout develop
 
       - name: Create branch with Ticket number
         run: |
@@ -69,6 +74,7 @@ jobs:
           BRANCH_NAME="${ISSUE_NUMBER}-$(echo ${ISSUE_TITLE} | sed 's/ /-/g')"
           git checkout -b "${BRANCH_NAME}"
           git push origin "${BRANCH_NAME}"
+          
       - name: Update issue title
         uses: actions-cool/issues-helper@v3
         with:
