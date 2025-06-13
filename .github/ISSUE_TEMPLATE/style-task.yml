@@ -1,7 +1,7 @@
 name: Style Task
 description: UI 스타일 변경 작업을 위한 이슈 템플릿입니다.(JIRA와 연동됩니다)
-title: "/Style] "
-labels: ["🎨 Style"]
+title: "style] "
+labels: ["🎨 style"]
 body:
   - type: input
     id: parentKey

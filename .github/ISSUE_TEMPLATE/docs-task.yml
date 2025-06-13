@@ -1,6 +1,6 @@
 name: Docs Task
 description: 문서 작성 및 수정을 위한 템플릿입니다.(JIRA와 연동됩니다)
-title: "/docs] "
+title: "docs] "
 labels: ["📃 docs"]
 
 body:

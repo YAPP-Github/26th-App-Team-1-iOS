@@ -1,6 +1,6 @@
 name: Fix Task
 description: 버그 수정용 이슈 템플릿입니다.(JIRA와 연동됩니다)
-title: "/fix] "
+title: "fix] "
 labels: ["🐞 fix"]
 body:
   - type: input

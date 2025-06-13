@@ -1,6 +1,6 @@
 name: Test Task
 description: 테스트 코드 작성 및 테스트 환경 구축을 위한 이슈입니다.(JIRA와 연동됩니다)
-title: "/test] "
+title: "test] "
 labels: ["✅ test"]
 body:
   - type: input

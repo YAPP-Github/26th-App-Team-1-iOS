@@ -1,6 +1,6 @@
 name: Refactor Task
 description: 리팩토링 작업을 위한 템플릿입니다.(JIRA와 연동됩니다)
-title: "/refactor] "
+title: "refactor] "
 labels: ["🔨 refactor"]
 body:
   - type: input

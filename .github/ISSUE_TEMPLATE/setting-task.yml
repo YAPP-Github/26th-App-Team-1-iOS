@@ -1,6 +1,6 @@
 name: Setting Task
 description: 개발 환경 설정 작업을 위한 템플릿입니다.(JIRA와 연동됩니다)
-title: "/chore] "
+title: "chore] "
 labels: ["⚙️ chore"]
 body:
   - type: input
