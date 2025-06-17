@@ -1,0 +1,26 @@
+import ProjectDescription
+import ProjectDescriptionHelpers
+
+let project = Project.project(
+    name: BKModule.BKPresentation.rawValue,
+    targets: [
+        Target.target(
+            name: BKModule.BKPresentation.rawValue,
+            product: Project.product,
+            bundleId: "presentation." + Project.bundleID,
+            sources: .sources,
+            dependencies: [
+                .core(),
+            ]
+        ),
+        Target.target(
+            name: "\(BKModule.BKPresentation.rawValue)Test",
+            product: .unitTests,
+            bundleId: "presentationtest" + Project.bundleID,
+            sources: .tests,
+            dependencies: [
+                .presentation()
+            ]
+        )
+    ]
+)
