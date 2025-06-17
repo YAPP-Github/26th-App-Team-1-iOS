@@ -10,7 +10,7 @@ public protocol NetworkRequestable {
 public struct DefaultNetworkProvider: NetworkProvider {
     private let requestor: NetworkRequestable
     
-    init(requestor: NetworkRequestable) {
+    public init(requestor: NetworkRequestable) {
         self.requestor = requestor
     }
     
