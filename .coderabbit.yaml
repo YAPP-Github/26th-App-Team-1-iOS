@@ -2,7 +2,6 @@ language: ko-KR
 
 early_access: true
 enable_free_tier: true
-auto_resolve_threads: false
 
 reviews:
   profile: chill
@@ -71,8 +70,7 @@ reviews:
       essential_rules: true
 
 chat:
-  enabled: true
-  max_token_length: 4096
+  auto_reply: true
 
 knowledge_base:
   web_search:
