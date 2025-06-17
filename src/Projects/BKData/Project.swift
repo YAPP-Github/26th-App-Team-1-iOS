@@ -9,6 +9,9 @@ let project = Project.project(
             product: Project.product,
             bundleId: "data." + Project.bundleID,
             sources: .sources,
+            scripts: [
+                swiftLintScript
+            ],
             dependencies: [
                 .core(),
             ]
