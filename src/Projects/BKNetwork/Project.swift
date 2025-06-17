@@ -11,6 +11,7 @@ let project = Project.project(
             sources: .sources,
             dependencies: [
                 .core(),
+                .data()
             ]
         ),
         Target.target(
