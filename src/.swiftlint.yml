@@ -14,6 +14,7 @@ opt_in_rules:
   - identifier_name # 사용 전 Rule 확인 필요
   - sorted_imports # 알파벳 순서대로 임포트
   - duplicate_imports # 중복 임포트 제거
+  - indentation_width
 
 analyzer_rules:
   - unused_declaration
@@ -29,6 +30,7 @@ type_name:
   max_length:
     warning: 40
     error: 50
+  validates_start_with_lowercase: warning
 
 identifier_name:
   min_length: 3
@@ -41,19 +43,12 @@ type_body_length:
   warning: 200
   error: 400
 
-indentation:
-  indentation_width: 4
-  include_comments: true
-
 colon:
   flexible_right_spacing: false
   apply_to_dictionaries: true
 
 operator_usage_whitespace:
   severity: warning
-
-type_name:
-  validates_start_with_lowercase: warning
 
 control_statement:
   severity: warning
