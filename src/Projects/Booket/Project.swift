@@ -34,7 +34,7 @@ let appTarget = Target.target(
             .debug(name: "Debug", xcconfig: "SupportingFiles/Debug.xcconfig"),
             .release(name: "Release", xcconfig: "SupportingFiles/Release.xcconfig")
         ]
-    ),
+    )
 )
 
 // MARK: - Project

@@ -13,8 +13,7 @@ let project = Project.project(
                 swiftLintScript
             ],
             dependencies: [
-            ],
-
+            ]
         ),
         
         Target.target(
