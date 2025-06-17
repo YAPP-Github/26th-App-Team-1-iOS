@@ -5,14 +5,10 @@ import BKData
 
 public struct DefaultNetworkProvider: NetworkProvider {
     @discardableResult
-    func request<T: Decodable>(
+    public func request<T: Decodable>(
         target: RequestTarget,
         type: T.Type
     ) async throws -> T {
-        
-    }
-    
-    func makeURL(target: RequestTarget) throws -> URL? {
-        
+
     }
 }
