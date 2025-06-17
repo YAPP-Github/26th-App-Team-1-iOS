@@ -10,6 +10,9 @@ let project = Project.project(
             bundleId: "design." + Project.bundleID,
             sources: .sources,
             resources: .default,
+            scripts: [
+                swiftLintScript
+            ],
             dependencies: [
                 .core(),
             ]

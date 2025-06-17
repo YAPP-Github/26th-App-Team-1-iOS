@@ -13,6 +13,9 @@ let appTarget = Target.target(
 //        .glob(pattern: .relativeToRoot("src/Resources/LaunchScreen.storyboard"))
     ],
 //    entitlements: .file(path: .relativeToRoot("src/SupportingFiles/Booket.entitlements")),
+    scripts: [
+        swiftLintScript
+    ],
     dependencies: [
         // Module
         .data(),
