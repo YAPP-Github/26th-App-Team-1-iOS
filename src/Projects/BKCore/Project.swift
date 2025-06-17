@@ -9,9 +9,14 @@ let project = Project.project(
             product: Project.product,
             bundleId: "core." + Project.bundleID,
             sources: .sources,
+            scripts: [
+                swiftLintScript
+            ],
             dependencies: [
-            ]
+            ],
+
         ),
+        
         Target.target(
             name: "\(BKModule.BKCore.rawValue)Test",
             product: .unitTests,

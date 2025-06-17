@@ -13,6 +13,9 @@ let appTarget = Target.target(
 //        .glob(pattern: .relativeToRoot("src/Resources/LaunchScreen.storyboard"))
     ],
 //    entitlements: .file(path: .relativeToRoot("src/SupportingFiles/Booket.entitlements")),
+    scripts: [
+        swiftLintScript
+    ],
     dependencies: [
         // Module
         .data(),
@@ -31,7 +34,7 @@ let appTarget = Target.target(
             .debug(name: "Debug", xcconfig: "SupportingFiles/Debug.xcconfig"),
             .release(name: "Release", xcconfig: "SupportingFiles/Release.xcconfig")
         ]
-    )
+    ),
 )
 
 // MARK: - Project
