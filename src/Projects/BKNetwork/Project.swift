@@ -13,7 +13,10 @@ let project = Project.project(
                 swiftLintScript
             ],
             dependencies: [
-                .core()
+                .core(),
+                .external(dependency: .KakaoSDKCommon),
+                .external(dependency: .KakaoSDKAuth),
+                .external(dependency: .KakaoSDKUser),
             ]
         ),
         Target.target(
