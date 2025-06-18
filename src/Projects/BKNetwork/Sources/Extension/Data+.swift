@@ -10,15 +10,18 @@ extension Data {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
-
-        guard let decoded = try? JSONDecoder().decode(T.self, from: self) else {
-            switch httpResponse.statusCode {
-            case 401: throw NetworkError.unauthorized
-            case 500...599: throw NetworkError.internalServerError
-            default: throw NetworkError.invalidResponse
-            }
+        
+        switch httpResponse.statusCode {
+        case 200...299:
+            break
+        case 401:
+            throw NetworkError.unauthorized
+        case 500...599:
+            throw NetworkError.internalServerError
+        default:
+            throw NetworkError.invalidResponse
         }
 
-        return decoded
+        return try JSONDecoder().decode(T.self, from: self)
     }
 }

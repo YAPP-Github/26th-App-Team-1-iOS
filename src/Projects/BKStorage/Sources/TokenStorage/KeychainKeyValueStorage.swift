@@ -57,13 +57,16 @@ private extension KeychainKeyValueStorage {
     private func baseQuery(for account: String) -> [String: Any] {
         return [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account
+            kSecAttrAccount as String: account,
+            kSecAttrService as String: "Booket.26th.yapp"
         ]
     }
 
     private func encode<T: Encodable>(_ data: T) throws -> Data {
         if let string = data as? String {
             return Data(string.utf8)
+        } else if let rawData = data as? Data {
+            return rawData
         } else {
             return try JSONEncoder().encode(data)
         }
