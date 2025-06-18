@@ -4,6 +4,7 @@ public enum External: String {
     case KakaoSDKCommon
     case KakaoSDKAuth
     case KakaoSDKUser
+    
     case KakaoSDKShare
     case KakaoSDKTalk
     case Lottie
