@@ -8,7 +8,7 @@ extension URLRequest {
         components.queryItems = query.compactMap {
             URLQueryItem(
                 name: $0.key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0.key,
-                value: ($0.value as? String)?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+                value: "\( $0.value )".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
             )
         }
         

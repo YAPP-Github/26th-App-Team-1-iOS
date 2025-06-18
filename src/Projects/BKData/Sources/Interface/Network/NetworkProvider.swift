@@ -4,6 +4,7 @@ public protocol NetworkProvider {
     @discardableResult
     func request<T: Decodable>(
         target: RequestTarget,
-        type: T.Type
+        type: T.Type,
+        isRetry: Bool
     ) async throws -> T
 }
