@@ -98,6 +98,9 @@ jobs:
       - name: Log created issue
         run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
 
+      - name: Debug task markdown
+        run: echo "${{ steps.issue-parser.outputs.issueparser_tasks }}"
+
       - name: Extract task list
         id: extract-tasks
         run: |
