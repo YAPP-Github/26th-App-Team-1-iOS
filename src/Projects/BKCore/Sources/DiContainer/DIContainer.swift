@@ -57,6 +57,7 @@ public final class DIContainer: DependencyInjectable {
         return service
     }
     
+    /// `@Autowired`를 사용하지 않는 경우, 편하게 `resolve(_:)`를 사용하기 위한 유틸리티 메소드입니다.
     public func resolveOrFatal<T>(
         type: T.Type,
         name: String?
