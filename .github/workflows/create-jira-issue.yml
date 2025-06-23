@@ -98,19 +98,32 @@ jobs:
       - name: Log created issue
         run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
 
+      - name: Debug all issue-parser outputs
+        run: |
+          echo "🪵 Outputs:"
+          echo '${{ toJson(steps.issue-parser.outputs) }}'
+
       - name: Debug task markdown
         run: echo "${{ steps.issue-parser.outputs.issueparser_tasks }}"
 
-      - name: Extract task list
+      - name: Extract task list (strip checkbox & convert to JSON)
         id: extract-tasks
         run: |
           echo "${{ steps.issue-parser.outputs.issueparser_tasks }}" > tasks.md
-          # Markdown 체크박스 형식에서 텍스트만 추출
-          grep -oP '(?<=- \[ \] ).*' tasks.md > tasks.txt
-          echo "📋 추출된 작업 목록:"
+      
+          # 체크박스 마크다운 포맷 제거: '- [ ] ' 또는 '- [x] ' 제거
+          sed -E 's/^- \[[ xX]\] //' tasks.md | sed '/^\s*$/d' > tasks.txt
+      
+          echo "📋 정제된 작업 목록:"
           cat tasks.txt
+      
           # JSON 배열로 변환
-          echo "TASKS_JSON=$(jq -R -s -c 'split("\n") | map(select(length > 0))' tasks.txt)" >> $GITHUB_ENV
+          TASKS_JSON=$(jq -R -s -c 'split("\n") | map(select(length > 0))' tasks.txt)
+          echo "TASKS_JSON=$TASKS_JSON" >> $GITHUB_ENV
+      
+          # 디버깅용 출력
+          echo "✅ 변환된 JSON 배열:"
+          echo "$TASKS_JSON"
 
       - name: Create Jira Sub-tasks
         if: ${{ env.TASKS_JSON != '[]' }}
