@@ -2,6 +2,7 @@
 
 import UIKit
 
+/// Flow 제어 시, `onFinish`를 참고하고 사용해주세요.
 protocol Coordinator: AnyObject {
     // MARK: - Properties
     var parentCoordinator: (any Coordinator)? { get set }
@@ -23,6 +24,7 @@ extension Coordinator {
         }
     }
     
+    /// 기본 구현 메소드 여러 개를 가지고 유기적으로 구현되었습니다. 스택 정리 시 이 메소드만 사용해도 무방합니다.
     func popAndFinish(
         animated: Bool = true
     ) {
