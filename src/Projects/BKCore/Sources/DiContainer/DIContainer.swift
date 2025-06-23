@@ -1,5 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
+import Foundation
+
 typealias DependencyInjectable = DependencyResolver & DependencyAssembler
 
 public final class DIContainer: DependencyInjectable {
@@ -8,6 +10,8 @@ public final class DIContainer: DependencyInjectable {
     
     private var services: [String: DependencyContainerClosure] = [:]
     private var instances: [String: Any] = [:]
+    
+    private let resolveLock = NSRecursiveLock()
     private var resolving: Set<String> = []
     
     // MARK: - Methods
@@ -46,12 +50,19 @@ public final class DIContainer: DependencyInjectable {
         name: String? = nil
     ) -> T? {
         let key = "\(name ?? "default")_\(type)"
+        
+        resolveLock.lock()
         if resolving.contains(key) {
             fatalError("\(#file) - \(#line): \(#function) - \(type) circular dependency detected")
         }
-        
         resolving.insert(key)
-        defer { resolving.remove(key) }
+        resolveLock.unlock()
+        
+        defer {
+            resolveLock.lock()
+            resolving.remove(key)
+            resolveLock.unlock()
+        }
         
         guard let service = services[key]?(self) as? T else { return nil }
         return service
