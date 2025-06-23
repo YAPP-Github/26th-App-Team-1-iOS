@@ -4,8 +4,8 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     // MARK: - Properties
-    var parentCoordinator: Coordinator? { get set }
-    var childCoordinators: [Coordinator] { get set }
+    var parentCoordinator: (any Coordinator)? { get set }
+    var childCoordinators: [any Coordinator] { get set }
     var navigationController: UINavigationController { get set }
     
     // MARK: - Methods
@@ -35,14 +35,14 @@ extension Coordinator {
     }
     
     func addChildCoordinator(
-        _ coordinator: Coordinator
+        _ coordinator: any Coordinator
     ) {
         childCoordinators.append(coordinator)
         coordinator.parentCoordinator = self
     }
     
     func removeChildCoordinator(
-        _ child: Coordinator?
+        _ child: (any Coordinator)?
     ) {
         for (idx, coordinator) in childCoordinators.enumerated() where coordinator === child {
             childCoordinators.remove(at: idx)
