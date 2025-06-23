@@ -4,8 +4,8 @@ import UIKit
 
 class BaseView: UIView {
     // MARK: - Initialize
-    override init(frame: CGRect) {
-        super.init(frame: .zero)
+    override init(frame: CGRect = .zero) {
+        super.init(frame: frame)
         self.setupView()
         self.setupLayout()
         self.configure()

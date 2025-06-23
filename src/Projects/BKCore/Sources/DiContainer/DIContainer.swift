@@ -60,9 +60,9 @@ public final class DIContainer: DependencyInjectable {
     /// `@Autowired`를 사용하지 않는 경우, 편하게 `resolve(_:)`를 사용하기 위한 유틸리티 메소드입니다.
     public func resolveOrFatal<T>(
         type: T.Type,
-        name: String?
+        name: String? = nil
     ) -> T {
-        guard let resolved = DIContainer.shared.resolve(type: T.self) else {
+        guard let resolved = resolve(type: T.self, name: name) else {
             fatalError("\(#file) - \(#line): \(#function) - resolved failed for \(T.self)")
         }
         return resolved
