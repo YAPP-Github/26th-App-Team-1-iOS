@@ -98,6 +98,19 @@ jobs:
       - name: Log created issue
         run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
 
+      - name: Check and fallback if tasks is empty
+        id: fallback-tasks
+        run: |
+          if [ -z "${{ steps.issue-parser.outputs.issueparser_tasks }}" ]; then
+            echo "⚠️ issueparser_tasks is empty. Using fallback content."
+            echo "tasks=- [ ] fallback task 1\n- [ ] fallback task 2" >> $GITHUB_ENV
+            echo "TASKS_EMPTY=true" >> $GITHUB_ENV
+          else
+            echo "✅ issueparser_tasks is present."
+            echo "tasks=${{ steps.issue-parser.outputs.issueparser_tasks }}" >> $GITHUB_ENV
+            echo "TASKS_EMPTY=false" >> $GITHUB_ENV
+          fi
+
       - name: Debug all issue-parser outputs
         run: |
           echo "🪵 Outputs:"
@@ -106,18 +119,14 @@ jobs:
       - name: Debug task markdown
         run: echo "${{ steps.issue-parser.outputs.issueparser_tasks }}"
 
-      - name: Extract task list (strip checkbox & convert to JSON)
+      - name: Extract task list
         id: extract-tasks
         run: |
-          echo "${{ steps.issue-parser.outputs.issueparser_tasks }}" > tasks.md
-      
-          # 체크박스 마크다운 포맷 제거: '- [ ] ' 또는 '- [x] ' 제거
-          sed -E 's/^- \[[ xX]\] //' tasks.md | sed '/^\s*$/d' > tasks.txt
-      
-          echo "📋 정제된 작업 목록:"
+          echo -e "${{ env.tasks }}" > tasks.md
+          grep -oP '(?<=- \[ \] ).*' tasks.md > tasks.txt
+          echo "📋 추출된 작업 목록:"
           cat tasks.txt
-      
-          # JSON 배열로 변환
+          
           TASKS_JSON=$(jq -R -s -c 'split("\n") | map(select(length > 0))' tasks.txt)
           echo "TASKS_JSON=$TASKS_JSON" >> $GITHUB_ENV
       
