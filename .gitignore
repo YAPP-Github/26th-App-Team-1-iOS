@@ -107,4 +107,4 @@ iOSInjectionProject/
 **/APIKey.plist
 
 node_modules/
-src/SupportingFiles/Configs/Debug.xcconfig
+src/SupportingFiles/Configs/*
