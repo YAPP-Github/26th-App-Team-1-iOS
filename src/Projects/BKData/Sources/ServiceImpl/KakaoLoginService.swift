@@ -1,10 +1,10 @@
 // Copyright © 2025 Booket. All rights reserved
 
-import Foundation
 import BKDomain
 import Combine
-import KakaoSDKCommon
+import Foundation
 import KakaoSDKAuth
+import KakaoSDKCommon
 import KakaoSDKUser
 
 /// 카카오 SDK 로그인 과정을 추상화한 서비스 구현
@@ -39,13 +39,14 @@ public final class KakaoLoginService: SocialLoginService {
     }
 }
 
+// MARK: - Private functions
 private extension KakaoLoginService {
     /// 카카오톡 앱을 이용한 로그인
     /// - Returns: accessToken을 방출하는 퍼블리셔 또는 에러
     func loginWithApp() -> AnyPublisher<String, BKDomain.AuthError> {
         Future<String, BKDomain.AuthError> { [kakaoAPI] promise in
             kakaoAPI.loginWithKakaoTalk(
-                launchMethod: .CustomScheme,
+                launchMethod: .UniversalLink,
                 channelPublicIds: nil,
                 serviceTerms: nil,
                 nonce: nil
