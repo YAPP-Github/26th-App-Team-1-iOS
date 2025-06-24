@@ -16,11 +16,11 @@ public final class SignInUseCaseImpl: SignInUseCase {
     ///   - loginService: 소셜 SDK 로그인 과정을 추상화한 서비스
     ///   - repository: 서버 인증 API 호출을 추상화한 레포지토리
     public init(
-      loginService: SocialLoginService,
-      repository: AuthRepository
+        loginService: SocialLoginService,
+        repository: AuthRepository
     ) {
-      self.loginService = loginService
-      self.repository   = repository
+        self.loginService = loginService
+        self.repository   = repository
     }
     
     /// 로그인 비즈니스 로직 실행
@@ -33,13 +33,13 @@ public final class SignInUseCaseImpl: SignInUseCase {
     /// - Failure: 로그인 과정 또는 서버 호출 중 발생한 `AuthError`
     public func execute() -> AnyPublisher<AuthTokens, AuthError> {
         loginService.login()
-          .flatMap { token in
-            self.repository.signIn(
-              provider: self.loginService.provider,
-              token: token
-            )
-          }
-          .eraseToAnyPublisher()
+            .flatMap { token in
+                self.repository.signIn(
+                    provider: self.loginService.provider,
+                    token: token
+                )
+            }
+            .eraseToAnyPublisher()
     }
-
+    
 }
