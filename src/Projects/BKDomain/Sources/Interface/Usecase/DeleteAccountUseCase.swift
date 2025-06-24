@@ -1,7 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
-import Foundation
 import Combine
+import Foundation
 
 /// 설정 화면에서 회원 탈퇴 처리 전용 유즈케이스
 public protocol DeleteAccountUseCase {

@@ -1,7 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
-import Foundation
 import Combine
+import Foundation
 
 /// 온보딩 화면에서 소셜 로그인(또는 회원가입) 처리 전용 유즈케이스
 public protocol SignInUseCase {

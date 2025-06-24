@@ -1,7 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
-import Foundation
 import Combine
+import Foundation
 
 /// 서버와의 인증 관련 API 호출을 추상화한 레포지토리 프로토콜
 public protocol AuthRepository {
