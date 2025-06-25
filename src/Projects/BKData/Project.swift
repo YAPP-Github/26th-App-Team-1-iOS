@@ -14,6 +14,10 @@ let project = Project.project(
             ],
             dependencies: [
                 .core(),
+                .domain(),
+                .external(dependency: .KakaoSDKCommon),
+                .external(dependency: .KakaoSDKAuth),
+                .external(dependency: .KakaoSDKUser),
             ]
         ),
         Target.target(
