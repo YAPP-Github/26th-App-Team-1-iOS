@@ -12,7 +12,10 @@ public protocol AuthRepository {
     ///   - token: 소셜 SDK로부터 전달받은 인증 토큰(String)
     /// - Returns: 서버가 발급한 `AuthTokens`를 담은 퍼블리셔
     /// - Failure: `AuthError` 유형의 에러
-    func signIn(provider: AuthProvider, token: String) -> AnyPublisher<AuthTokens, AuthError>
+    func signIn(
+        provider: AuthProvider,
+        token: String
+    ) -> AnyPublisher<AuthTokens, AuthError>
     
     /// 서버에 로그아웃 요청을 보냅니다.
     ///
@@ -27,5 +30,8 @@ public protocol AuthRepository {
     ///   - token: 탈퇴 처리에 필요한 소셜 인증 토큰(String?) (authorizationToken 등)
     /// - Returns: 정상 처리 시 빈 값(Void)을 방출하는 퍼블리셔
     /// - Failure: `AuthError` 유형의 에러
-    func deleteAccount(provider: AuthProvider, token: String?) -> AnyPublisher<Void, AuthError>
+    func deleteAccount(
+        provider: AuthProvider,
+        token: String?
+    ) -> AnyPublisher<Void, AuthError>
 }
