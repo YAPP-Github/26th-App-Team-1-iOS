@@ -3,6 +3,8 @@
 import Combine
 import Foundation
 
+/// 토큰 발급 + 서버 통신을 하나의 Usecase에서 처리함
+/// 
 /// 소셜 로그인 서비스와 인증 리포지토리를 조합하여
 /// 실제 로그인 비즈니스 로직(액세스·리프레시 토큰 발급)을 수행하는 UseCase 구현체
 public final class DefaultSignInUseCase: SignInUseCase {
