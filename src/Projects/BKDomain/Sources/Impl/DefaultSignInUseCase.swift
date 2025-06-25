@@ -5,7 +5,7 @@ import Foundation
 
 /// 소셜 로그인 서비스와 인증 리포지토리를 조합하여
 /// 실제 로그인 비즈니스 로직(액세스·리프레시 토큰 발급)을 수행하는 UseCase 구현체
-public final class SignInUseCaseImpl: SignInUseCase {
+public final class DefaultSignInUseCase: SignInUseCase {
     /// SDK 로그인 또는 소셜 로그인 토큰 획득 로직을 제공하는 서비스
     private let loginService: SocialLoginService
     
