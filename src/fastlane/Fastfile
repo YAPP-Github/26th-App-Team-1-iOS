@@ -1,0 +1,316 @@
+# fastlane/Fastfile
+default_platform(:ios)
+
+platform :ios do
+  # Booket 프로젝트 설정 (환경변수 사용)
+  WORKSPACE_NAME     = "Booket.xcworkspace"
+  MAIN_APP_SCHEME    = "Booket"
+  WORKSPACE_SCHEME   = "Booket-Workspace"
+  TEAM_ID            = ENV["DEVELOPMENT_TEAM"]
+  BUNDLE_ID          = ENV["APP_IDENTIFIER"]
+  APPLE_ID           = ENV["APPLE_ID"]
+  DEVELOPER_NAME     = ENV["DEVELOPER_NAME"]
+
+  # Fastlane dotenv 플러그인 사용 시 환경변수 자동 로드
+  # plugin 'dotenv'
+  # before_all { dotenv }
+
+  # 동적으로 인증서 이름 생성
+  def code_sign_identity_name
+    "Apple Development: #{DEVELOPER_NAME} (#{TEAM_ID})"
+  end
+
+  # 모듈 및 테스트 스킴
+  MODULE_SCHEMES = %w[BKCore BKData BKDesign BKDomain BKNetwork BKPresentation BKStorage]
+  TEST_SCHEMES   = MODULE_SCHEMES.map { |s| "#{s}Test" }
+
+  desc "Generate Tuist project"
+  lane :generate do
+    UI.message("🏗️ Generating Tuist project...")
+    sh("cd .. && tuist generate")
+    UI.success("✅ Tuist project generated!")
+
+    UI.message("📋 Available schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  desc "Setup automatic code signing for main app"
+  lane :setup_auto_signing do |options|
+    identity = options[:identity] || code_sign_identity_name
+    UI.message("🔧 Setting up automatic code signing with #{identity}...")
+
+    project_path = File.expand_path("../Projects/Booket/Booket.xcodeproj")
+    unless File.exist?(project_path)
+      UI.error("❌ Project file not found at: #{project_path}")
+      UI.user_error!("Please check the project path")
+    end
+
+    update_code_signing_settings(
+      use_automatic_signing: true,
+      team_id: TEAM_ID,
+      code_sign_identity: identity,
+      targets: [MAIN_APP_SCHEME],
+      path: project_path
+    )
+    UI.success("✅ Automatic signing configured for Booket!")
+  end
+
+  desc "Setup manual code signing for main app"
+  lane :setup_manual_signing do
+    UI.message("🔧 Setting up manual code signing...")
+    project_path = File.expand_path("../Projects/Booket/Booket.xcodeproj")
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      team_id: TEAM_ID,
+      code_sign_identity: code_sign_identity_name,
+      targets: [MAIN_APP_SCHEME],
+      path: project_path
+    )
+    UI.success("✅ Manual signing configured for Booket!")
+  end
+
+  desc "Generate and apply signing settings only (no build)"
+  lane :generate_and_sign do
+    generate
+    setup_auto_signing(identity: code_sign_identity_name)
+  end
+
+  desc "Build all modules (without main app)"
+  lane :build_modules do
+    generate
+    
+    UI.message("🔨 Building all BK modules...")
+    
+    MODULE_SCHEMES.each do |scheme|
+      UI.message("Building #{scheme}...")
+      
+      xcodebuild(
+        workspace: WORKSPACE_NAME,
+        scheme: scheme,
+        configuration: "Debug",
+        build_settings: {
+          "CODE_SIGN_IDENTITY" => "",
+          "CODE_SIGNING_REQUIRED" => "NO"
+        }
+      )
+    end
+    
+    UI.success("✅ All modules built successfully!")
+  end
+
+  desc "Simple build with manual signing (testing)"
+  lane :build_manual do
+    generate
+    setup_manual_signing
+    
+    UI.message("🔨 Manual signing build test...")
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      build_settings: {
+        "CODE_SIGN_STYLE" => "Manual",
+        "DEVELOPMENT_TEAM" => TEAM_ID,
+        "CODE_SIGN_IDENTITY" => "Apple Development: DOYEON KIM (7L9YFLK4UM)",
+        "ONLY_ACTIVE_ARCH" => "YES"
+      }
+    )
+    
+    UI.success("✅ Manual build completed!")
+  end
+
+  desc "Build main app for development"
+  lane :build_dev do
+    # 1. 프로젝트 생성
+    generate
+    
+    # 2. 개발용 서명 설정
+    setup_auto_signing(identity: "Apple Development")
+    
+    # 3. 메인 앱 빌드
+    UI.message("🔨 Building Booket app for development...")
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,           # "Booket" 스킴 사용
+      configuration: "Debug",
+      export_method: "development",
+      output_directory: "./builds/",
+      xcargs: "-allowProvisioningUpdates",
+      export_options: {
+        method: "development",
+        teamID: TEAM_ID,
+        signingStyle: "automatic",
+        compileBitcode: false
+      }
+    )
+    
+    UI.success("✅ Development build completed! Check ./builds/ folder")
+  end
+
+  desc "Build main app for App Store (나중에 필요시 사용)"
+  lane :build_release do
+    UI.message("❌ Release build is not configured yet")
+    UI.message("💡 Use 'build_dev' for development builds")
+    UI.message("📝 To configure release builds, you need:")
+    UI.message("  - Apple Distribution certificate")
+    UI.message("  - App Store provisioning profile")
+  end
+
+  desc "Simple build without archive (for testing)"
+  lane :build_simple do
+    # 1. 프로젝트 생성
+    generate
+    
+    # 2. 개발용 서명 설정 (Apple Development 사용)
+    setup_auto_signing(identity: "Apple Development")
+    
+    # 3. 간단한 빌드 (archive 없이)
+    UI.message("🔨 Simple build test...")
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      xcargs: "-allowProvisioningUpdates",  # 중요: 프로비저닝 업데이트 허용
+      build_settings: {
+        "CODE_SIGN_STYLE" => "Automatic",
+        "DEVELOPMENT_TEAM" => TEAM_ID,
+        "ONLY_ACTIVE_ARCH" => "YES"
+      }
+    )
+    
+    UI.success("✅ Simple build completed!")
+  end
+
+  desc "Run tests for all modules"
+  lane :test_modules do
+    generate
+    
+    UI.message("🧪 Running tests for all modules...")
+    
+    TEST_SCHEMES.each do |test_scheme|
+      UI.message("Testing #{test_scheme}...")
+      
+      run_tests(
+        workspace: WORKSPACE_NAME,
+        scheme: test_scheme,
+        devices: ["iPhone 15"],
+        code_coverage: true,
+        xcargs: "ONLY_ACTIVE_ARCH=YES"
+      )
+    end
+    
+    UI.success("✅ All module tests passed!")
+  end
+
+  desc "Run tests for main app (if exists)"
+  lane :test_app do
+    generate
+    
+    UI.message("🧪 Testing main Booket app...")
+    
+    run_tests(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      devices: ["iPhone 15"],
+      code_coverage: true,
+      clean: true
+    )
+    
+    UI.success("✅ Main app tests passed!")
+  end
+
+  desc "Build workspace (all targets)"
+  lane :build_workspace do
+    generate
+    
+    UI.message("🔨 Building entire workspace...")
+    
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: WORKSPACE_SCHEME,          # "Booket-Workspace" 사용
+      configuration: "Debug",
+      build_settings: {
+        "CODE_SIGN_IDENTITY" => "",
+        "CODE_SIGNING_REQUIRED" => "NO"
+      }
+    )
+    
+    UI.success("✅ Workspace build completed!")
+  end
+
+  desc "Quick validation - build modules and test"
+  lane :validate do
+    UI.message("🔍 Running full validation...")
+    
+    # 1. 모듈들 빌드
+    build_modules
+    
+    # 2. 모듈 테스트 실행
+    test_modules
+    
+    # 3. 메인 앱 빌드 (개발용)
+    build_dev
+    
+    UI.success("✅ Full validation completed!")
+  end
+
+  desc "Build and upload to TestFlight (나중에 필요시 사용)"
+  lane :beta do
+    UI.message("❌ TestFlight upload is not configured yet")
+    UI.message("💡 Use 'build_dev' for development builds")
+    UI.message("📝 To configure TestFlight, you need:")
+    UI.message("  - Apple Distribution certificate")
+    UI.message("  - App Store Connect access")
+    UI.message("  - App Store provisioning profile")
+  end
+
+  desc "Clean everything"
+  lane :clean do
+    UI.message("🧹 Cleaning...")
+    
+    # Tuist 캐시 정리
+    sh("cd .. && tuist clean")
+    
+    # 빌드 결과물 정리
+    sh("rm -rf ./builds/")
+    sh("rm -rf ./test_output/")
+    
+    # Xcode 파생 데이터 정리 (선택사항)
+    # sh("rm -rf ~/Library/Developer/Xcode/DerivedData/Booket-*")
+    
+    UI.success("✅ Clean completed!")
+  end
+
+  desc "Show project info"
+  lane :info do
+    generate
+    
+    UI.header("📱 Booket Project Information")
+    
+    UI.message("Workspace: #{WORKSPACE_NAME}")
+    UI.message("Main App Scheme: #{MAIN_APP_SCHEME}")
+    UI.message("Bundle ID: #{BUNDLE_ID}")
+    UI.message("Team ID: #{TEAM_ID}")
+    UI.message("Apple ID: #{APPLE_ID || 'Not set'}")
+    
+    UI.message("\n🔧 Environment Variables:")
+    UI.message("  - DEVELOPMENT_TEAM: #{ENV['DEVELOPMENT_TEAM'] || 'Using default'}")
+    UI.message("  - APP_IDENTIFIER: #{ENV['APP_IDENTIFIER'] || 'Using default'}")
+    UI.message("  - APPLE_ID: #{ENV['APPLE_ID'] || 'Not set'}")
+    
+    UI.message("\n📦 Module Schemes:")
+    MODULE_SCHEMES.each { |scheme| UI.message("  - #{scheme}") }
+    
+    UI.message("\n🧪 Test Schemes:")
+    TEST_SCHEMES.each { |scheme| UI.message("  - #{scheme}") }
+    
+    UI.message("\n📋 All Available Schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  # 에러 처리
+  error do |lane, exception|
+    UI.error("❌ Lane '#{lane}' failed: #{exception.message}")
+  end
+end

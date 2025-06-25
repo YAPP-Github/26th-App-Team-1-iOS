@@ -68,3 +68,48 @@ Derived/
 
 ### Tuist managed dependencies ###
 Tuist/.build
+
+# Fastlane 관련 (보안 중요!)
+fastlane/builds/
+fastlane/test_output/
+fastlane/screenshots/**/*.png
+fastlane/Preview.html
+fastlane/report.xml
+fastlane/README.md
+
+# 환경 변수 파일 (🚨 매우 중요 - 인증 정보 포함)
+.env
+.env.local
+.env.*.local
+
+# 빌드 결과물들
+*.ipa
+*.app
+*.dSYM.zip
+build/
+
+# 인증서 파일들 (🚨 매우 중요 - 절대 업로드 금지)
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+
+# Tuist 생성 파일들 (이미 있을 수도 있음)
+.build/
+Derived/
+*.xcworkspace
+*.xcodeproj
+
+# Xcode 관련
+DerivedData/
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Ruby/Bundle 관련
+vendor/bundle/
+.bundle/
+Gemfile.lock
+
+# fastlane 세션 정보
+fastlane/fastlane_session
