@@ -12,7 +12,7 @@ import KakaoSDKUser
 /// 발급된 accessToken만 방출합니다.
 public final class KakaoLoginService: SocialLoginService {
     /// 이 서비스가 담당할 소셜 공급자
-    public let provider: BKDomain.AuthProvider
+    public let provider: AuthProvider
 
     /// Kakao SDK의 UserApi 인터페이스 추상화
     private let kakaoAPI: KakaoUserAPIProtocol
@@ -21,7 +21,7 @@ public final class KakaoLoginService: SocialLoginService {
     ///   - provider: `.kakao` 고정
     ///   - kakaoAPI: SDK 호출을 추상화한 프로토콜 구현체
     public init(
-        provider: BKDomain.AuthProvider = .kakao,
+        provider: AuthProvider = .kakao,
         kakaoAPI: KakaoUserAPIProtocol = UserApi.shared
     ) {
         self.provider = provider
@@ -31,7 +31,7 @@ public final class KakaoLoginService: SocialLoginService {
     /// 카카오 로그인 실행
     /// - Returns: accessToken을 방출하는 퍼블리셔 또는 에러
     public func login() -> AnyPublisher<String, BKDomain.AuthError> {
-        if UserApi.isKakaoTalkLoginAvailable() {
+        if kakaoAPI.isLoginWithTalkAvailable() {
             return loginWithApp()
         } else {
             return loginWithAccount()
