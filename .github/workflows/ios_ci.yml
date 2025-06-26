@@ -16,6 +16,7 @@ jobs:
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       MATCH_KEYCHAIN_NAME: "ci.keychain-db"
       MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
+      GIT_AUTHORIZATION: https://${{ secrets.MATCH_GIT_TOKEN }}@github.com
 
     steps:
       - name: 🔄 Checkout source code
