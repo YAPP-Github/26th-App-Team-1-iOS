@@ -45,7 +45,7 @@ jobs:
         run: bundle install
 
       - name: 🛠 Install Tuist
-        run: curl -Ls https://install.tuist.io | bash
+        run: brew install tuist
 
       - name: 🔐 Create temporary keychain
         run: |
