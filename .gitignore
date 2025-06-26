@@ -133,6 +133,7 @@ build/
 *.cer
 *.mobileprovision
 *.provisionprofile
+AuthKey*
 
 # Tuist 생성 파일들 (이미 있을 수도 있음)
 .build/
