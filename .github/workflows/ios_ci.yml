@@ -10,12 +10,15 @@ jobs:
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
-      DEV_CODE_SIGN_IDENTITY: ${{ secrets.DEV_CODE_SIGN_IDENTITY }}
+      DEV_CODE_SIGN_IDENTITY: ${{ secrets.DEV_TEAM_SIGN_IDENTITY }}
       APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
       APPLE_ID: ${{ secrets.APPLE_ID }}
       DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       MATCH_KEYCHAIN_NAME: "ci.keychain-db"
       MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
+      APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+      APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
     steps:
       - name: 🔄 Checkout source code
@@ -33,6 +36,8 @@ jobs:
           echo "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL" >> .env.ci
           echo "MATCH_KEYCHAIN_NAME=$MATCH_KEYCHAIN_NAME" >> .env.ci
           echo "MATCH_REPO_URL=$MATCH_REPO_URL" >> .env.ci
+          echo "APP_STORE_CONNECT_API_KEY_ID" >> .env.ci
+          echo "APP_STORE_CONNECT_ISSUER_ID" >> .env.ci
 
       - name: 📱 Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.0.app
@@ -47,8 +52,18 @@ jobs:
         working-directory: src
         run: bundle install
 
-      - name: 🛠 Install Tuist
-        run: brew install tuist
+      - name: 🛠 Install Tuist (manual binary)
+        run: |
+          TUIST_VERSION=4.31.0
+          mkdir -p ~/.tuist-bin
+          curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
+          unzip -o tuist.zip -d ~/.tuist-bin
+          chmod +x ~/.tuist-bin/tuist
+          echo "$HOME/.tuist-bin" >> $GITHUB_PATH
+      
+      - name: 🛠 Install external dependencies
+        working-directory: src
+        run: tuist install
 
       - name: 🔐 Create temporary keychain
         run: |
@@ -57,14 +72,18 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $MATCH_KEYCHAIN_NAME
           security set-keychain-settings -t 3600 -u $MATCH_KEYCHAIN_NAME
 
-      - name: 🔒 Setup match certificates
+      - name: 🔐 Decode API Key
         working-directory: src/fastlane
         run: |
-          bundle exec fastlane match development \
-            --type development \
-            --keychain_name $MATCH_KEYCHAIN_NAME \
-            --keychain_password "$KEYCHAIN_PASSWORD"
-            
+          echo "$APP_STORE_CONNECT_API_KEY" | base64 -d > AuthKey.p8
+        shell: bash
+
+      - name: 🧱 Initialize Tuist module structure
+        working-directory: src
+        run: |
+          chmod +x tuist_module_init.sh
+          ./tuist_module_init.sh
+
       - name: 🧪 Run PR Checks (build + test)
         working-directory: src/fastlane
         run: bundle exec fastlane ci_pr --env ci
