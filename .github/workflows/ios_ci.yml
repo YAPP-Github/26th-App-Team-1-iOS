@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: macos-15
     steps:
+      - name: 🔄 Checkout source code
+        uses: actions/checkout@v4
+        
       - name: 📝 Generate .env.ci from env
         working-directory: src/fastlane
         env:
@@ -28,9 +31,6 @@ jobs:
           echo "APPLE_ID=$APPLE_ID" >> .env.ci
           echo "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL" >> .env.ci
           echo "MATCH_KEYCHAIN_NAME=$MATCH_KEYCHAIN_NAME" >> .env.ci
-        
-      - name: 🔄 Checkout source code
-        uses: actions/checkout@v4
 
       - name: 📱 Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.0.app
