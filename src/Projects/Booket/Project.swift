@@ -5,8 +5,8 @@ let appTarget = Target.target(
     name: "Booket",
     product: .app,
     bundleId: Project.bundleID,
-    infoPlist: .default,
-//    infoPlist: .file(path: .relativeToRoot("src/SupportingFiles/Info.plist")),
+    infoPlist: .file(path: .relativeToRoot("SupportingFiles/Info.plist")),
+//    infoPlist: .default,
     sources: .sources,
     resources: [
 //        .glob(pattern: .relativeToRoot("src/Resources/**")),
@@ -34,8 +34,10 @@ let appTarget = Target.target(
             "PROVISIONING_PROFILE_SPECIFIER": "match Development Booket.26th.yapp"
         ],
         configurations: [
-            .debug(name: "Debug", xcconfig: "SupportingFiles/Debug.xcconfig"),
-            .release(name: "Release", xcconfig: "SupportingFiles/Release.xcconfig")
+//            .debug(name: "Debug", xcconfig: "SupportingFiles/Debug.xcconfig"),
+//            .release(name: "Release", xcconfig: "SupportingFiles/Release.xcconfig")
+            .debug(name: "Debug", xcconfig: .relativeToRoot("SupportingFiles/Configs/Debug.xcconfig")),
+            .release(name: "Release", xcconfig: .relativeToRoot("SupportingFiles/Configs/Release.xcconfig"))
         ]
     )
 )
