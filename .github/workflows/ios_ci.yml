@@ -1,0 +1,72 @@
+name: Fastlane CI
+
+on:
+  pull_request:
+    branches:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: 📝 Generate .env.ci from env
+        working-directory: src/fastlane
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
+          DEV_CODE_SIGN_IDENTITY: ${{ secrets.DEV_CODE_SIGN_IDENTITY }}
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MATCH_KEYCHAIN_NAME: "ci.keychain-db"
+        run: |
+          echo "MATCH_PASSWORD=$MATCH_PASSWORD" > .env.ci
+          echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> .env.ci
+          echo "DEV_TEAM_ID=$DEV_TEAM_ID" >> .env.ci
+          echo "DEV_CODE_SIGN_IDENTITY=$DEV_CODE_SIGN_IDENTITY" >> .env.ci
+          echo "APP_IDENTIFIER=$APP_IDENTIFIER" >> .env.ci
+          echo "APPLE_ID=$APPLE_ID" >> .env.ci
+          echo "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL" >> .env.ci
+          echo "MATCH_KEYCHAIN_NAME=$MATCH_KEYCHAIN_NAME" >> .env.ci
+        
+      - name: 🔄 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 📱 Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app
+
+      - name: 💫 Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.0'
+          bundler-cache: true
+
+      - name: 📦 Install dependencies
+        run: bundle install
+
+      - name: 🛠 Install Tuist
+        run: curl -Ls https://install.tuist.io | bash
+
+      - name: 🔐 Create temporary keychain
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $MATCH_KEYCHAIN_NAME
+          security default-keychain -s $MATCH_KEYCHAIN_NAME
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $MATCH_KEYCHAIN_NAME
+          security set-keychain-settings -t 3600 -u $MATCH_KEYCHAIN_NAME
+
+      - name: 🔒 Setup match certificates
+        working-directory: src/fastlane
+        run: |
+          bundle exec fastlane match development \
+            --readonly \
+            --type development \
+            --keychain_name $MATCH_KEYCHAIN_NAME \
+            --keychain_password "$KEYCHAIN_PASSWORD"
+            
+      - name: 🧪 Run PR Checks (build + test)
+        working-directory: src/fastlane
+        run: bundle exec fastlane ci_pr --env ci
+
+      - name: 🧹 Delete keychain
+        if: always()
+        run: security delete-keychain $MATCH_KEYCHAIN_NAME || true

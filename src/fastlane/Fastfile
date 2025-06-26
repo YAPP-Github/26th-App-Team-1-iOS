@@ -5,6 +5,36 @@ unlock_keychain(
 
 default_platform(:ios)
 
+def notify_discord(success, lane)
+  require 'json'
+
+  webhook_url = ENV["DISCORD_WEBHOOK_URL"]
+  status = success ? "✅ Success" : "❌ Failed"
+  color = success ? 0x00FF00 : 0xFF0000
+
+  branch = ENV["GITHUB_HEAD_REF"] || ENV["GITHUB_REF_NAME"] || `git rev-parse --abbrev-ref HEAD`.strip
+  commit = ENV["GITHUB_SHA"] || `git rev-parse HEAD`.strip
+  repo = ENV["GITHUB_REPOSITORY"]
+  run_url = ENV["GITHUB_SERVER_URL"].to_s + "/" + repo + "/actions/runs/" + ENV["GITHUB_RUN_ID"].to_s
+
+  message = {
+    username: "Fastlane Bot",
+    embeds: [
+      {
+        title: "CI #{status}: `#{lane}`",
+        description: "[View Run on GitHub](" + run_url + ")",
+        color: color,
+        fields: [
+          { name: "Branch", value: branch, inline: true },
+          { name: "Commit", value: "`#{commit[0..7]}`", inline: true }
+        ]
+      }
+    ]
+  }
+
+  sh("curl -X POST -H 'Content-Type: application/json' -d '#{message.to_json}' #{webhook_url}")
+end
+
 platform :ios do
   WORKSPACE_NAME     = "Booket.xcworkspace"
   MAIN_APP_SCHEME    = "Booket"
@@ -263,6 +293,20 @@ platform :ios do
 
     UI.message("\n📋 All Available Schemes:")
     sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  desc "CI for pull requests: build modules + test modules"
+  lane :ci_pr do
+    begin
+      generate
+      build_modules
+      test_modules
+      notify_discord(true, :ci_pr)
+    rescue => e
+      UI.error("CI failed: #{e.message}")
+      notify_discord(false, :ci_pr)
+      raise e
+    end
   end
 
   error do |lane, exception|
