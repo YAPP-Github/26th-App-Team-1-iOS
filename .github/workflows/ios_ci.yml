@@ -2,7 +2,6 @@ name: Fastlane CI
 
 on:
   pull_request:
-    branches:
 
 jobs:
   build:
@@ -10,7 +9,7 @@ jobs:
     steps:
       - name: 🔄 Checkout source code
         uses: actions/checkout@v4
-        
+
       - name: 📝 Generate .env.ci from env
         working-directory: src/fastlane
         env:
@@ -42,6 +41,7 @@ jobs:
           bundler-cache: true
 
       - name: 📦 Install dependencies
+        working-directory: src
         run: bundle install
 
       - name: 🛠 Install Tuist
