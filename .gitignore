@@ -153,3 +153,4 @@ Gemfile.lock
 
 # fastlane 세션 정보
 fastlane/fastlane_session
+/src/vendor
