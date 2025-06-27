@@ -77,10 +77,9 @@ Dependencies/
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/#source-control
 
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
+src/fastlane/report.xml
+src/fastlane/Preview.html
+src/fastlane/screenshots/**/*.png
 
 # Code Injection
 # After new code Injection tools there's a generated folder /iOSInjectionProject
@@ -110,12 +109,12 @@ node_modules/
 *.xcconfig
 
 # Fastlane 관련 (보안 중요!)
-fastlane/builds/
-fastlane/test_output/
-fastlane/screenshots/**/*.png
-fastlane/Preview.html
-fastlane/report.xml
-fastlane/README.md
+src/fastlane/builds/
+src/fastlane/test_output/
+src/fastlane/screenshots/**/*.png
+src/fastlane/Preview.html
+src/fastlane/report.xml
+src/fastlane/README.md
 
 # 환경 변수 파일 (🚨 매우 중요 - 인증 정보 포함)
 .env
@@ -153,5 +152,27 @@ vendor/bundle/
 Gemfile.lock
 
 # fastlane 세션 정보
-fastlane/fastlane_session
+/src/fastlane/fastlane_session
 /src/vendor
+
+# Icon must end with two
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
