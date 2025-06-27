@@ -28,7 +28,10 @@ let appTarget = Target.target(
     ],
     settings: .settings(
         base: [
-            "DEVELOPMENT_LANGUAGE": "ko"
+            "DEVELOPMENT_LANGUAGE": "ko",
+            "DEVELOPMENT_TEAM": "VZC79KP79S",
+            "CODE_SIGN_STYLE": "Manual",
+            "PROVISIONING_PROFILE_SPECIFIER": "match Development Booket.26th.yapp"
         ],
         configurations: [
 //            .debug(name: "Debug", xcconfig: "SupportingFiles/Debug.xcconfig"),

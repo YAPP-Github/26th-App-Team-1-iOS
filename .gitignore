@@ -77,10 +77,9 @@ Dependencies/
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/#source-control
 
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
+src/fastlane/report.xml
+src/fastlane/Preview.html
+src/fastlane/screenshots/**/*.png
 
 # Code Injection
 # After new code Injection tools there's a generated folder /iOSInjectionProject
@@ -107,4 +106,73 @@ iOSInjectionProject/
 **/APIKey.plist
 
 node_modules/
-**/SupportingFiles/Configs/*.xcconfig
+*.xcconfig
+
+# Fastlane 관련 (보안 중요!)
+src/fastlane/builds/
+src/fastlane/test_output/
+src/fastlane/screenshots/**/*.png
+src/fastlane/Preview.html
+src/fastlane/report.xml
+src/fastlane/README.md
+
+# 환경 변수 파일 (🚨 매우 중요 - 인증 정보 포함)
+.env
+.env.local
+.env.*.local
+
+# 빌드 결과물들
+*.ipa
+*.app
+*.dSYM.zip
+build/
+
+# 인증서 파일들 (🚨 매우 중요 - 절대 업로드 금지)
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+AuthKey*
+
+# Tuist 생성 파일들 (이미 있을 수도 있음)
+.build/
+Derived/
+*.xcworkspace
+*.xcodeproj
+
+# Xcode 관련
+DerivedData/
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Ruby/Bundle 관련
+vendor/bundle/
+.bundle/
+Gemfile.lock
+
+# fastlane 세션 정보
+/src/fastlane/fastlane_session
+/src/vendor
+
+# Icon must end with two
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

@@ -1,0 +1,21 @@
+# App identifier
+app_identifier(ENV["APP_IDENTIFIER"])
+
+# Apple ID (개발자 계정 이메일)
+apple_id(ENV["APPLE_ID"])
+
+# Team ID (Developer Program에서 확인 가능)
+team_id(ENV["DEV_TEAM_ID"])
+
+# iTunes Connect Team ID (App Store Connect 팀 ID, 보통 team_id와 동일)
+itc_team_id(ENV["DEV_TEAM_ID"])
+
+# 개발자 이름 (인증서에 사용되는 이름)
+developer_name = ENV["DEVELOPER_NAME"]
+
+# TODO: 특정 키체인 사용시
+# keychain_name ENV["KEYCHAIN_NAME"]
+# keychain_password ENV["KEYCHAIN_PASSWORD"]
+
+# TODO: 앱 전용 비밀번호 (2FA 사용시 TestFlight 업로드에 필요)
+# app_password ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD"]

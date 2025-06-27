@@ -1,0 +1,328 @@
+unlock_keychain(
+  path: "~/Library/Keychains/login.keychain-db",
+  password: ENV["KEYCHAIN_PASSWORD"]
+)
+
+default_platform(:ios)
+
+def notify_discord(success, lane)
+  require 'json'
+
+  webhook_url = ENV["DISCORD_WEBHOOK_URL"]
+  status = success ? "✅ Success" : "❌ Failed"
+  color = success ? 0x00FF00 : 0xFF0000
+
+  branch = ENV["GITHUB_HEAD_REF"] || ENV["GITHUB_REF_NAME"] || `git rev-parse --abbrev-ref HEAD`.strip
+  commit = ENV["GITHUB_SHA"] || `git rev-parse HEAD`.strip
+  repo = ENV["GITHUB_REPOSITORY"]
+  run_url = ENV["GITHUB_SERVER_URL"].to_s + "/" + repo + "/actions/runs/" + ENV["GITHUB_RUN_ID"].to_s
+
+  message = {
+    username: "Fastlane Bot",
+    embeds: [
+      {
+        title: "CI #{status}: `#{lane}`",
+        description: "[View Run on GitHub](" + run_url + ")",
+        color: color,
+        fields: [
+          { name: "Branch", value: branch, inline: true },
+          { name: "Commit", value: "`#{commit[0..7]}`", inline: true }
+        ]
+      }
+    ]
+  }
+
+  sh("curl -X POST -H 'Content-Type: application/json' -d '#{message.to_json}' #{webhook_url}")
+end
+
+platform :ios do
+  WORKSPACE_NAME     = "Booket.xcworkspace"
+  MAIN_APP_SCHEME    = "Booket"
+  WORKSPACE_SCHEME   = "Booket-Workspace"
+
+  DEV_TEAM_ID        = ENV["DEV_TEAM_ID"]
+  DIST_TEAM_ID       = ENV["DIST_TEAM_ID"]
+  DEV_IDENTITY       = ENV["DEV_CODE_SIGN_IDENTITY"]
+  DIST_IDENTITY      = ENV["DIST_CODE_SIGN_IDENTITY"]
+
+  BUNDLE_ID          = ENV["APP_IDENTIFIER"]
+  APPLE_ID           = ENV["APPLE_ID"]
+
+  MODULE_SCHEMES = %w[BKCore BKData BKDesign BKDomain BKNetwork BKPresentation BKStorage]
+  TEST_SCHEMES   = MODULE_SCHEMES.map { |s| "#{s}Test" }
+
+  desc "Generate Tuist project"
+  lane :generate do
+    UI.message("🏗️ Generating Tuist project...")
+    sh("cd .. && tuist generate")
+    UI.success("✅ Tuist project generated!")
+
+    UI.message("📋 Available schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  desc "Build all modules (without main app)"
+  lane :build_modules do
+    generate
+    UI.message("🔨 Building all BK modules...")
+
+    MODULE_SCHEMES.each do |scheme|
+      UI.message("Building #{scheme}...")
+      xcodebuild(
+        workspace: WORKSPACE_NAME,
+        scheme: scheme,
+        configuration: "Debug",
+        xcargs: [
+          "CODE_SIGN_IDENTITY=''",
+          "CODE_SIGNING_REQUIRED=NO"
+        ].join(" ")
+      )
+    end
+
+    UI.success("✅ All modules built successfully!")
+  end
+
+  desc "Simple build with manual signing (testing)"
+  lane :build_manual do
+    generate
+
+    UI.message("🔨 Manual signing build test...")
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      xcargs: [
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='#{DEV_IDENTITY}'",
+        "DEVELOPMENT_TEAM=#{DEV_TEAM_ID}",
+        "PROVISIONING_PROFILE_SPECIFIER='match Development #{BUNDLE_ID}'",
+        "OTHER_CODE_SIGN_FLAGS=--keychain #{ENV["MATCH_KEYCHAIN_NAME"]}"
+      ].join(" ")
+    )
+
+    UI.success("✅ Manual build completed!")
+  end
+
+  desc "Build main app for development"
+  lane :build_dev do
+    generate
+
+    UI.message("🔨 Building Booket app for development...")
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      export_method: "development",
+      output_directory: "./builds/",
+      export_options: {
+        method: "development",
+        signingStyle: "manual",
+        teamID: DEV_TEAM_ID,
+        provisioningProfiles: {
+          BUNDLE_ID => "match Development #{BUNDLE_ID}"
+        },
+        compileBitcode: false
+      },
+      xcargs: [
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='#{DEV_IDENTITY}'",
+        "DEVELOPMENT_TEAM=#{DEV_TEAM_ID}",
+        "PROVISIONING_PROFILE_SPECIFIER='match Development #{BUNDLE_ID}'",
+        "OTHER_CODE_SIGN_FLAGS='--keychain #{ENV["MATCH_KEYCHAIN_NAME"]}'"
+      ].join(" ")
+    )
+
+    UI.success("✅ Development build completed! Check ./builds/ folder")
+  end
+
+  desc "Build main app for App Store"
+  lane :build_release do
+    generate
+
+    UI.message("📦 Building Booket app for release...")
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./builds/release",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        teamID: DIST_TEAM_ID,
+        provisioningProfiles: {
+          BUNDLE_ID => "match AppStore #{BUNDLE_ID}"
+        },
+        compileBitcode: true
+      },
+      xcargs: [
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='#{DIST_IDENTITY}'",
+        "DEVELOPMENT_TEAM=#{DIST_TEAM_ID}",
+        "PROVISIONING_PROFILE_SPECIFIER='match AppStore #{BUNDLE_ID}'",
+        "OTHER_CODE_SIGN_FLAGS='--keychain #{ENV["MATCH_KEYCHAIN_NAME"]}'"
+      ].join(" ")
+    )
+
+    UI.success("✅ Release build completed!")
+  end
+
+  desc "Simple build without archive (for testing)"
+  lane :build_simple do
+    generate
+
+    UI.message("🔨 Simple build test (manual signing)...")
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      xcargs: [
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='#{DEV_IDENTITY}'",
+        "DEVELOPMENT_TEAM=#{DEV_TEAM_ID}",
+        "ONLY_ACTIVE_ARCH=YES"
+      ].join(" ")
+    )
+
+    UI.success("✅ Simple build completed!")
+  end
+
+  desc "Run tests for all modules"
+  lane :test_modules do
+    generate
+    UI.message("🧪 Running tests for all modules...")
+
+    TEST_SCHEMES.each do |test_scheme|
+      UI.message("Testing #{test_scheme}...")
+      run_tests(
+        workspace: WORKSPACE_NAME,
+        scheme: test_scheme,
+        devices: ["iPhone 15"],
+        code_coverage: true,
+        xcargs: "ONLY_ACTIVE_ARCH=YES"
+      )
+    end
+
+    UI.success("✅ All module tests passed!")
+  end
+
+  desc "Run tests for main app (if exists)"
+  lane :test_app do
+    generate
+
+    UI.message("🧪 Testing main Booket app...")
+    run_tests(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      devices: ["iPhone 15"],
+      code_coverage: true,
+      clean: true
+    )
+
+    UI.success("✅ Main app tests passed!")
+  end
+
+  desc "Build workspace (all targets)"
+  lane :build_workspace do
+    generate
+
+    UI.message("🔨 Building entire workspace...")
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: WORKSPACE_SCHEME,
+      configuration: "Debug",
+      xcargs: [
+        "CODE_SIGN_IDENTITY=''",
+        "CODE_SIGNING_REQUIRED=NO"
+      ].join(" ")
+    )
+
+    UI.success("✅ Workspace build completed!")
+  end
+
+  desc "Quick validation - build modules and test"
+  lane :validate do
+    UI.message("🔍 Running full validation...")
+
+    build_modules
+    test_modules
+    build_dev
+
+    UI.success("✅ Full validation completed!")
+  end
+
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    build_release
+    # pilot(upload: true) 추가 가능
+    UI.success("🚀 Uploaded to TestFlight (stub)")
+  end
+
+  desc "Clean everything"
+  lane :clean do
+    UI.message("🧹 Cleaning...")
+
+    sh("cd .. && tuist clean")
+    sh("rm -rf ./builds/")
+    sh("rm -rf ./test_output/")
+
+    UI.success("✅ Clean completed!")
+  end
+
+  desc "Show project info"
+  lane :info do
+    generate
+
+    UI.header("📱 Booket Project Information")
+    UI.message("Workspace: #{WORKSPACE_NAME}")
+    UI.message("Main App Scheme: #{MAIN_APP_SCHEME}")
+    UI.message("Bundle ID: #{BUNDLE_ID}")
+    UI.message("Apple ID: #{APPLE_ID || 'Not set'}")
+
+    UI.message("\n🔧 Environment Variables:")
+    UI.message("  - DEV_TEAM_ID: #{ENV['DEV_TEAM_ID']}")
+    UI.message("  - DIST_TEAM_ID: #{ENV['DIST_TEAM_ID']}")
+    UI.message("  - APP_IDENTIFIER: #{BUNDLE_ID}")
+    UI.message("  - APPLE_ID: #{APPLE_ID}")
+
+    UI.message("\n📦 Module Schemes:")
+    MODULE_SCHEMES.each { |scheme| UI.message("  - #{scheme}") }
+
+    UI.message("\n🧪 Test Schemes:")
+    TEST_SCHEMES.each { |scheme| UI.message("  - #{scheme}") }
+
+    UI.message("\n📋 All Available Schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  desc "CI for pull requests: build modules + test modules"
+  lane :ci_pr do
+    begin
+      api_key = app_store_connect_api_key(
+        key_id: ENV['APP_STORE_CONNECT_API_KEY_ID'],
+        issuer_id: ENV['APP_STORE_CONNECT_ISSUER_ID'],
+        key_filepath: "fastlane/AuthKey.p8"
+      )
+
+      match(
+        api_key: api_key,
+        type: "development",
+        readonly: false
+      )
+
+      generate
+      build_modules
+      # TODO: 테스트 환경 설정 이후 주석 해제
+      # test_modules
+      notify_discord(true, :ci_pr)
+    rescue => e
+      UI.error("CI failed: #{e.message}")
+      notify_discord(false, :ci_pr)
+      raise e
+    end
+  end
+
+  error do |lane, exception|
+    UI.error("❌ Lane '#{lane}' failed: #{exception.message}")
+  end
+end
