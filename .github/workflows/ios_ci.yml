@@ -27,17 +27,19 @@ jobs:
       - name: 📝 Generate .env.ci from env
         working-directory: src/fastlane
         run: |
-          echo "MATCH_PASSWORD=$MATCH_PASSWORD" > .env.ci
-          echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> .env.ci
-          echo "DEV_TEAM_ID=$DEV_TEAM_ID" >> .env.ci
-          echo "DEV_CODE_SIGN_IDENTITY=$DEV_CODE_SIGN_IDENTITY" >> .env.ci
-          echo "APP_IDENTIFIER=$APP_IDENTIFIER" >> .env.ci
-          echo "APPLE_ID=$APPLE_ID" >> .env.ci
-          echo "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL" >> .env.ci
-          echo "MATCH_KEYCHAIN_NAME=$MATCH_KEYCHAIN_NAME" >> .env.ci
-          echo "MATCH_REPO_URL=$MATCH_REPO_URL" >> .env.ci
-          echo "APP_STORE_CONNECT_API_KEY_ID" >> .env.ci
-          echo "APP_STORE_CONNECT_ISSUER_ID" >> .env.ci
+          {
+            echo "MATCH_PASSWORD=$MATCH_PASSWORD"
+            echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD"
+            echo "DEV_TEAM_ID=$DEV_TEAM_ID"
+            echo "DEV_CODE_SIGN_IDENTITY=$DEV_CODE_SIGN_IDENTITY"
+            echo "APP_IDENTIFIER=$APP_IDENTIFIER"
+            echo "APPLE_ID=$APPLE_ID"
+            echo "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL"
+            echo "MATCH_KEYCHAIN_NAME=$MATCH_KEYCHAIN_NAME"
+            echo "MATCH_REPO_URL=$MATCH_REPO_URL"
+            echo "APP_STORE_CONNECT_API_KEY_ID=$APP_STORE_CONNECT_API_KEY_ID"
+            echo "APP_STORE_CONNECT_ISSUER_ID=$APP_STORE_CONNECT_ISSUER_ID"
+          } > .env.ci
 
       - name: 📱 Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.0.app
@@ -46,7 +48,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.0'
-          bundler-cache: true
+          bundler-cache: false
 
       - name: 📦 Install dependencies
         working-directory: src
@@ -88,6 +90,8 @@ jobs:
         working-directory: src/fastlane
         run: bundle exec fastlane ci_pr --env ci
 
-      - name: 🧹 Delete keychain
+      - name: 🧹 Teardown()
         if: always()
-        run: security delete-keychain $MATCH_KEYCHAIN_NAME || true
+        run: |
+          security delete-keychain $MATCH_KEYCHAIN_NAME || true
+          rm -f src/fastlane/AuthKey
