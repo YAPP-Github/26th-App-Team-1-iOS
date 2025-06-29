@@ -11,30 +11,42 @@ jobs:
       - name: Determine Issue Type
         id: type
         run: |
-          if echo "${{ toJson(github.event.issue.labels) }}" | grep -q '✨ feat'; then
-            echo "type=feature" >> $GITHUB_OUTPUT
+          # 디버그: 라벨 JSON 전체 출력
+          LABELS_JSON="${{ toJson(github.event.issue.labels) }}"
+          echo "Debug ▶ Raw labels JSON:"
+          echo "$LABELS_JSON"
+          
+          if echo "$LABELS_JSON" | grep -q '✨ feat'; then
+            echo "type=feature"    >> $GITHUB_OUTPUT
             echo "template=feature-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🐞 fix'; then
-            echo "type=fix" >> $GITHUB_OUTPUT
-            echo "template=fix-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🔨 refactor'; then
-            echo "type=refactor" >> $GITHUB_OUTPUT
+          
+          elif echo "$LABELS_JSON" | grep -q '🐞 fix'; then
+            echo "type=fix"        >> $GITHUB_OUTPUT
+            echo "template=fix-task.yml"     >> $GITHUB_OUTPUT
+
+          elif echo "$LABELS_JSON" | grep -q '🔨 refactor'; then
+            echo "type=refactor"   >> $GITHUB_OUTPUT
             echo "template=refactor-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '📃 docs'; then
-            echo "type=docs" >> $GITHUB_OUTPUT
-            echo "template=docs-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '⚙️ chore'; then
-            echo "type=chore" >> $GITHUB_OUTPUT
-            echo "template=setting-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '✅ test'; then
-            echo "type=test" >> $GITHUB_OUTPUT
-            echo "template=test-task.yml" >> $GITHUB_OUTPUT
-          elif echo "${{ toJson(github.event.issue.labels) }}" | grep -q '🎨 style'; then
-            echo "type=style" >> $GITHUB_OUTPUT
-            echo "template=style-task.yml" >> $GITHUB_OUTPUT
+            
+          elif echo "$LABELS_JSON" | grep -q '📃 docs'; then
+            echo "type=docs"       >> $GITHUB_OUTPUT
+            echo "template=docs-task.yml"     >> $GITHUB_OUTPUT
+  
+          elif echo "$LABELS_JSON" | grep -q '⚙️ chore'; then
+            echo "type=chore"      >> $GITHUB_OUTPUT
+            echo "template=setting-task.yml"  >> $GITHUB_OUTPUT
+  
+          elif echo "$LABELS_JSON" | grep -q '✅ test'; then
+            echo "type=test"       >> $GITHUB_OUTPUT
+            echo "template=test-task.yml"     >> $GITHUB_OUTPUT
+            
+          elif echo "$LABELS_JSON" | grep -q '🎨 style'; then
+            echo "type=style"      >> $GITHUB_OUTPUT
+            echo "template=style-task.yml"    >> $GITHUB_OUTPUT
+  
           else
-            echo "type=other" >> $GITHUB_OUTPUT
-            echo "template=default.yml" >> $GITHUB_OUTPUT
+            echo "type=other"      >> $GITHUB_OUTPUT
+            echo "template=default.yml"        >> $GITHUB_OUTPUT
           fi
     
       - name: Jira Login
