@@ -13,7 +13,6 @@ jobs:
         run: |
           # 디버그: 라벨 JSON 전체 출력
           LABELS_JSON='${{ toJson(github.event.issue.labels) }}'
-          echo $LABELS_JSON
           
           if echo "$LABELS_JSON" | grep -q '✨ feat'; then
             echo "type=feature"    >> $GITHUB_OUTPUT
