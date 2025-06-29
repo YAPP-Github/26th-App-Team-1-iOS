@@ -12,7 +12,9 @@ jobs:
         id: type
         run: |
           # 디버그: 라벨 JSON 전체 출력
-          LABELS_JSON='${{ toJson(github.event.issue.labels) }}'
+          read -r -d '' LABELS_JSON <<'EOF'
+          ${{ toJson(github.event.issue.labels) }}
+          EOF
           echo "Debug ▶ Raw labels JSON:"
           echo "$LABELS_JSON"
           
