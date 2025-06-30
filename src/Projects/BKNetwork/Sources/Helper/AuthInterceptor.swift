@@ -10,7 +10,7 @@ public struct AuthInterceptor {
         self.tokenProvider = tokenProvider
     }
     
-    func adapt(_ request: URLRequest) throws -> URLRequest {
+    func adapt(_ request: URLRequest) -> URLRequest {
         guard let token = tokenProvider.accessToken else { return request }
         
         var adapted = request
@@ -18,12 +18,15 @@ public struct AuthInterceptor {
         return adapted
     }
     
-    func retryIfNeeded(_ response: URLResponse?, _ data: Data) async throws -> Bool {
-        guard let httpResponse = response as? HTTPURLResponse else { return false }
+    func retryIfNeeded(
+        _ response: URLResponse,
+        _ data: Data
+    ) throws {
+        let httpResponse = try response.asHTTP
+            .orThrow(NetworkError.invalidResponse)
         if httpResponse.statusCode == 401 {
-            try await tokenProvider.refreshIfNeeded()
-            return true
+            tokenProvider.refreshIfNeeded()
+            throw RetryTrigger()
         }
-        return false
     }
 }

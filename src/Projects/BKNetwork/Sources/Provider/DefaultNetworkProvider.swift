@@ -1,6 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
 import BKData
+import Combine
 import Foundation
 
 public struct DefaultNetworkProvider: NetworkProvider {
@@ -13,11 +14,21 @@ public struct DefaultNetworkProvider: NetworkProvider {
     @discardableResult
     public func request<T: Decodable>(
         target: RequestTarget,
-        type: T.Type,
-        isRetry: Bool = false
-    ) async throws -> T {
-        let request = try target.makeURLRequest()
-        let (data, response) = try await requestor.data(for: request)
-        return try data.decode(to: type, with: response)
+        type: T.Type
+    ) -> AnyPublisher<T, Error> {
+        do {
+            let request = try target.makeURLRequest()
+            return requestor.data(for: request)
+                .tryMap { data, response in
+                    try response.asHTTP
+                        .orThrow(NetworkError.invalidResponse)
+                        .validate()
+                    return try data.decode(to: type)
+                }
+                .eraseToAnyPublisher()
+        } catch {
+            return Fail(error: error)
+                .eraseToAnyPublisher()
+        }
     }
 }
