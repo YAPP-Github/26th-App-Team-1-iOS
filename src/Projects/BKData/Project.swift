@@ -26,7 +26,9 @@ let project = Project.project(
             bundleId: "datatest" + Project.bundleID,
             sources: .tests,
             dependencies: [
-                .data()
+                .data(),
+                .external(dependency: .Nimble),
+                .external(dependency: .Quick)
             ]
         )
     ]

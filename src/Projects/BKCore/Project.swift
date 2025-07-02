@@ -22,7 +22,9 @@ let project = Project.project(
             bundleId: "coretest" + Project.bundleID,
             sources: .tests,
             dependencies: [
-                .core()
+                .core(),
+                .external(dependency: .Nimble),
+                .external(dependency: .Quick)
             ]
         )
     ]

@@ -23,7 +23,9 @@ let project = Project.project(
             bundleId: "storagetest" + Project.bundleID,
             sources: .tests,
             dependencies: [
-                .storage()
+                .storage(),
+                .external(dependency: .Nimble),
+                .external(dependency: .Quick)
             ]
         )
     ]
