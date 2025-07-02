@@ -9,6 +9,8 @@
         // Default is .staticFramework
         // productTypes: ["Alamofire": .framework,]
         productTypes: ["KakaoSDK": .staticLibrary,
+                       "Nimble": .framework,
+                       "Quick": .framework
                       ]
     )
 #endif
@@ -17,6 +19,8 @@ let package = Package(
     name: "src",
     dependencies: [
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.23.0"),
+        .package(url: "https://github.com/Quick/Nimble.git", branch: "main"),
+        .package(url: "https://github.com/Quick/Quick.git", branch: "main")
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies

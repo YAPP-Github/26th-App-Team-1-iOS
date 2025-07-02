@@ -16,13 +16,16 @@ let project = Project.project(
                 .core()
             ]
         ),
+        
         Target.target(
             name: "\(BKModule.BKDomain.rawValue)Test",
             product: .unitTests,
             bundleId: "domaintest" + Project.bundleID,
             sources: .tests,
             dependencies: [
-                .domain()
+                .domain(),
+                .external(dependency: .Nimble),
+                .external(dependency: .Quick)
             ]
         )
     ]
