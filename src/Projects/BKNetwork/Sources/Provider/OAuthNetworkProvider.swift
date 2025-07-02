@@ -1,6 +1,7 @@
 // Copyright © 2025 Booket. All rights reserved
 
 import BKData
+import Combine
 import Foundation
 
 public struct OAuthNetworkProvider: NetworkProvider {
@@ -15,16 +16,23 @@ public struct OAuthNetworkProvider: NetworkProvider {
     @discardableResult
     public func request<T: Decodable>(
         target: RequestTarget,
-        type: T.Type,
-        isRetry: Bool = false
-    ) async throws -> T {
-        let adaptedRequest = try interceptor.adapt(target.makeURLRequest())
-        let (data, response) = try await requestor.data(for: adaptedRequest)
-        
-        if try await interceptor.retryIfNeeded(response, data), isRetry == false {
-            return try await request(target: target, type: type, isRetry: true)
+        type: T.Type
+    ) -> AnyPublisher<T, Error> {
+        do {
+            let adaptedRequest = try interceptor.adapt(target.makeURLRequest())
+            return requestor.data(for: adaptedRequest)
+                .tryMap { data, response in
+                    try response.asHTTP
+                        .orThrow(NetworkError.invalidResponse)
+                        .validate()
+                    try interceptor.retryIfNeeded(response, data)
+                    return try data.decode(to: type)
+                }
+                .retryIf({ $0 is RetryTrigger }, maxRetries: 1)
+                .eraseToAnyPublisher()
+        } catch {
+            return Fail(error: error)
+                .eraseToAnyPublisher()
         }
-        
-        return try data.decode(to: type, with: response)
     }
 }

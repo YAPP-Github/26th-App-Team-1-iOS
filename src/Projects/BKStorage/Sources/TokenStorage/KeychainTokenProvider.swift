@@ -16,7 +16,7 @@ public struct KeychainTokenProvider: TokenProvider {
         try? storage.load(for: accessTokenKey)
     }
     
-    public func refreshIfNeeded() async throws {
+    public func refreshIfNeeded() {
         // TODO: Refresh 기능 구현
     }
 }
