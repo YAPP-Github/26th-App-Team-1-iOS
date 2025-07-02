@@ -23,7 +23,9 @@ let project = Project.project(
             bundleId: "networktest" + Project.bundleID,
             sources: .tests,
             dependencies: [
-                .network()
+                .network(),
+                .external(dependency: .Nimble),
+                .external(dependency: .Quick)
             ]
         )
     ]

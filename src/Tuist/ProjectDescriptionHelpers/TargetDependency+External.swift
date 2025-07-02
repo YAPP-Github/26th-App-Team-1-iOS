@@ -12,6 +12,9 @@ public enum External: String {
     case SnapKit
     case Swinject
     case FittedSheets
+    
+    case Nimble
+    case Quick
 }
 
 extension TargetDependency {
