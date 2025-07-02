@@ -10,7 +10,7 @@ import KakaoSDKUser
 /// 카카오 SDK 로그인 과정을 추상화한 서비스 구현
 /// 앱 설치 여부에 따라 앱 로그인 또는 계정 로그인을 수행하고,
 /// 발급된 accessToken만 방출합니다.
-public final class KakaoLoginService: SocialLoginService {
+public final class KakaoLoginService: NSObject, SocialLoginService {
     /// 이 서비스가 담당할 소셜 공급자
     public let provider: AuthProvider
 
