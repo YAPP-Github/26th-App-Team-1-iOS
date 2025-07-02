@@ -1,5 +1,5 @@
 {
-  "originHash" : "c7e77e0fd33a1b4d81d4681157d326cfa33ca5f3cc785770fc8b00f423c5b2df",
+  "originHash" : "9ccc03d7dfa88becca4a55c1e88cca3204cc5a2628041d450a97a13facb3effe",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Quick/Nimble.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "28970fa1555daf50cae3a94968dc4601558310ab"
+        "revision" : "7795df4fff1a9cd231fe4867ae54f4dc5f5734f9",
+        "version" : "13.7.1"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Quick/Quick.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "2cf58526ea44c983a13975daea107303032220cc"
+        "revision" : "1163a1b1b114a657c7432b63dd1f92ce99fe11a6",
+        "version" : "7.6.2"
       }
     },
     {

@@ -19,8 +19,8 @@ let package = Package(
     name: "src",
     dependencies: [
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.23.0"),
-        .package(url: "https://github.com/Quick/Nimble.git", branch: "main"),
-        .package(url: "https://github.com/Quick/Quick.git", branch: "main")
+        .package(url: "https://github.com/Quick/Nimble.git", from: "13.7.1"),
+        .package(url: "https://github.com/Quick/Quick.git", from: "7.6.2")
         // Add your own dependencies here:
         // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
         // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
