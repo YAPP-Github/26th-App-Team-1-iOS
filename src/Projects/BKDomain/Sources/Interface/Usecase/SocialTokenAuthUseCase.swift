@@ -4,6 +4,6 @@ import Combine
 import Foundation
 
 /// OAuth Provider에게 식별 Token을 제공받는 UseCase
-public protocol AuthenticationWithSocialTokenUseCase {
+public protocol SocialTokenAuthUseCase {
     func execute(socialResult: SocialLoginResult) -> AnyPublisher<AuthTokens, AuthError>
 }

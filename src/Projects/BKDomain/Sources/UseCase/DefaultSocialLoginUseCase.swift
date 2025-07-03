@@ -3,7 +3,7 @@
 import Combine
 import Foundation
 
-public struct DefaultSocialSigninUseCase: SocialLoginUseCase {
+public struct DefaultSocialLoginUseCase: SocialLoginUseCase {
     private let loginService: SocialLoginService
     
     public init(loginService: SocialLoginService) {
