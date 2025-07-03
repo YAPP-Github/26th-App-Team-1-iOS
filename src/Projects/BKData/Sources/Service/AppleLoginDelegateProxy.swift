@@ -6,24 +6,56 @@ import Combine
 import UIKit
 
 final class AppleLoginDelegateProxy: NSObject {
-    private let subject = PassthroughSubject<String, AuthError>()
+    private var currentSubject: PassthroughSubject<String, AuthError>?
+    private var currentController: ASAuthorizationController?
 }
 
-extension AppleLoginDelegateProxy: ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+extension AppleLoginDelegateProxy {
     func startAuthorization() -> AnyPublisher<String, AuthError> {
+        cancelPreviousAuthorization()
+
+        let subject = PassthroughSubject<String, AuthError>()
+        self.currentSubject = subject
+
+        let controller = makeAuthorizationController()
+        self.currentController = controller
+
+        controller.performRequests()
+
+        return subject
+            .receive(on: DispatchQueue.main)
+            .handleEvents(receiveCompletion: { [weak self] _ in
+                self?.cleanup()
+            }, receiveCancel: { [weak self] in
+                self?.cleanup()
+            })
+            .eraseToAnyPublisher()
+    }
+}
+
+private extension AppleLoginDelegateProxy {
+    func cancelPreviousAuthorization() {
+        currentSubject?.send(completion: .failure(.sdkError(message: "이전 인증 요청 정리")))
+        cleanup()
+    }
+
+    func makeAuthorizationController() -> ASAuthorizationController {
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.email, .fullName]
 
         let controller = ASAuthorizationController(authorizationRequests: [request])
         controller.delegate = self
         controller.presentationContextProvider = self
-        controller.performRequests()
-
-        return subject
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+        return controller
     }
 
+    func cleanup() {
+        currentSubject = nil
+        currentController = nil
+    }
+}
+
+extension AppleLoginDelegateProxy: ASAuthorizationControllerDelegate {
     func authorizationController(
         controller: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
@@ -32,21 +64,23 @@ extension AppleLoginDelegateProxy: ASAuthorizationControllerDelegate, ASAuthoriz
               let tokenData = credential.identityToken,
               let token = String(data: tokenData, encoding: .utf8)
         else {
-            subject.send(completion: .failure(.missingToken))
+            currentSubject?.send(completion: .failure(.missingToken))
             return
         }
-
-        subject.send(token)
-        subject.send(completion: .finished)
+        
+        currentSubject?.send(token)
+        currentSubject?.send(completion: .finished)
     }
-
+    
     func authorizationController(
         controller: ASAuthorizationController,
         didCompleteWithError error: Error
     ) {
-        subject.send(completion: .failure(.sdkError(message: error.localizedDescription)))
+        currentSubject?.send(completion: .failure(.sdkError(message: error.localizedDescription)))
     }
+}
 
+extension AppleLoginDelegateProxy: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         return UIApplication.shared.keyWindowInActiveScene ?? UIWindow()
     }
