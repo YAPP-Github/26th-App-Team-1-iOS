@@ -6,7 +6,7 @@ public extension UIApplication {
     var keyWindowInActiveScene: UIWindow? {
         connectedScenes
             .compactMap { $0 as? UIWindowScene }
-            .first(where: { $0.activationState == .foregroundActive })?
+            .first { $0.activationState == .foregroundActive }?
             .windows
             .first(where: \.isKeyWindow)
     }
