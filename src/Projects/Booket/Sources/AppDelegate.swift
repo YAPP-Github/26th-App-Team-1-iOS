@@ -1,6 +1,8 @@
 // Copyright © 2025 Booket. All rights reserved
 
 import UIKit
+import BKData
+import KakaoSDKCommon
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,6 +10,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        let kakaoNativeAppKey = (Bundle.main.infoDictionary?["KAKAO_NATIVE_APP_KEY"] as? String) ?? ""
+        KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
         return true
     }
 
