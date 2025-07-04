@@ -25,7 +25,7 @@ public protocol KakaoUserAPIProtocol {
     
     /// 카카오 계정 로그인
     func loginWithKakaoAccount(
-        prompts : [KakaoAuthPrompt]?,
+        prompts: [KakaoAuthPrompt]?,
         channelPublicIds: [String]?,
         serviceTerms: [String]?,
         nonce: String?,

@@ -7,7 +7,7 @@ import Security
 public struct KeychainKeyValueStorage: KeyValueStorage {
     public init() {}
     
-    public func save<T>(_ data: T, for account: String) throws where T : Encodable {
+    public func save<T>(_ data: T, for account: String) throws where T: Encodable {
         let jsonData = try encode(data)
         let query = baseQuery(for: account)
 
@@ -26,7 +26,7 @@ public struct KeychainKeyValueStorage: KeyValueStorage {
         if status != errSecSuccess { throw StorageError.writeError }
     }
     
-    public func load<T>(for account: String) throws -> T where T : Decodable {
+    public func load<T>(for account: String) throws -> T where T: Decodable {
         let query = baseQuery(for: account).merging([
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
