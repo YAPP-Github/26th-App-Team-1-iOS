@@ -1,8 +1,8 @@
 // Copyright © 2025 Booket. All rights reserved
 
-import UIKit
 import BKData
 import KakaoSDKCommon
+import UIKit
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
